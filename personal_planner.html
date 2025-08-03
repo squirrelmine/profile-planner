@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 100px);
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 28px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .dashboard {
+            display: none;
+            background: #1a1a1a;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-header .date {
+            color: #888;
+            font-size: 16px;
+        }
+
+        .dashboard-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .section {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .section h3 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .priority-item, .habit-item, .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .priority-item:last-child, .habit-item:last-child, .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .add-input {
+            width: 100%;
+            padding: 10px;
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 5px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .add-btn {
+            background: #2ed573;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .habit-tracker {
+            grid-column: 1 / -1;
+        }
+
+        .habit-grid {
+            display: grid;
+            grid-template-columns: 150px repeat(7, 1fr);
+            gap: 10px;
+            align-items: center;
+        }
+
+        .day-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            background: #333;
+            border-radius: 5px;
+        }
+
+        .habit-name {
+            padding: 10px;
+            background: #333;
+            border-radius: 5px;
+        }
+
+        .habit-checkbox {
+            width: 20px;
+            height: 20px;
+            margin: 0 auto;
+            display: block;
+            cursor: pointer;
+        }
+
+        .weekly-schedule {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .day-section {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .day-section h4 {
+            margin-bottom: 15px;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .habit-grid {
+                grid-template-columns: 100px repeat(7, 1fr);
+                font-size: 12px;
+            }
+            
+            .weekly-schedule {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">Made with Anirudh Artist</div>
+    
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-box">
+            <h2>Personal Planner</h2>
+            <form onsubmit="login(event)">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+        <button class="logout-btn" onclick="logout()">Logout</button>
+        
+        <div class="dashboard-header">
+            <h1>My Personal Dashboard</h1>
+            <div class="date" id="currentDate"></div>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Weekly Priorities -->
+            <div class="section">
+                <h3>Weekly Priorities</h3>
+                <div id="prioritiesList"></div>
+                <input type="text" class="add-input" id="newPriority" placeholder="Add a new priority...">
+                <button class="add-btn" onclick="addPriority()">Add</button>
+            </div>
+
+            <!-- Habit Tracker -->
+            <div class="section habit-tracker">
+                <h3>Habit Tracker</h3>
+                <div class="habit-grid">
+                    <div class="habit-name">Habit</div>
+                    <div class="day-header">M</div>
+                    <div class="day-header">T</div>
+                    <div class="day-header">W</div>
+                    <div class="day-header">T</div>
+                    <div class="day-header">F</div>
+                    <div class="day-header">S</div>
+                    <div class="day-header">S</div>
+                    <div id="habitsGrid"></div>
+                </div>
+                <input type="text" class="add-input" id="newHabit" placeholder="Add a new habit...">
+                <button class="add-btn" onclick="addHabit()">Add</button>
+            </div>
+
+            <!-- Weekly Schedule -->
+            <div class="weekly-schedule">
+                <div class="day-section">
+                    <h4>Monday</h4>
+                    <div id="mondayTasks"></div>
+                    <input type="text" class="add-input" id="newMondayTask" placeholder="Add task for Monday...">
+                    <button class="add-btn" onclick="addTask('monday')">Add</button>
+                </div>
+
+                <div class="day-section">
+                    <h4>Tuesday</h4>
+                    <div id="tuesdayTasks"></div>
+                    <input type="text" class="add-input" id="newTuesdayTask" placeholder="Add task for Tuesday...">
+                    <button class="add-btn" onclick="addTask('tuesday')">Add</button>
+                </div>
+
+                <div class="day-section">
+                    <h4>Wednesday</h4>
+                    <div id="wednesdayTasks"></div>
+                    <input type="text" class="add-input" id="newWednesdayTask" placeholder="Add task for Wednesday...">
+                    <button class="add-btn" onclick="addTask('wednesday')">Add</button>
+                </div>
+
+                <div class="day-section">
+                    <h4>Thursday</h4>
+                    <div id="thursdayTasks"></div>
+                    <input type="text" class="add-input" id="newThursdayTask" placeholder="Add task for Thursday...">
+                    <button class="add-btn" onclick="addTask('thursday')">Add</button>
+                </div>
+
+                <div class="day-section">
+                    <h4>Friday</h4>
+                    <div id="fridayTasks"></div>
+                    <input type="text" class="add-input" id="newFridayTask" placeholder="Add task for Friday...">
+                    <button class="add-btn" onclick="addTask('friday')">Add</button>
+                </div>
+
+                <div class="day-section">
+                    <h4>Saturday</h4>
+                    <div id="saturdayTasks"></div>
+                    <input type="text" class="add-input" id="newSaturdayTask" placeholder="Add task for Saturday...">
+                    <button class="add-btn" onclick="addTask('saturday')">Add</button>
+                </div>
+
+                <div class="day-section">
+                    <h4>Sunday</h4>
+                    <div id="sundayTasks"></div>
+                    <input type="text" class="add-input" id="newSundayTask" placeholder="Add task for Sunday...">
+                    <button class="add-btn" onclick="addTask('sunday')">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Owned by ANIRUDH KARAMUNGIKAR (ARTIST) © 2025 | 
+        <a href="#" onclick="alert('Sign Up functionality would be implemented here')">Sign Up</a> | 
+        <a href="#" onclick="alert('Terms and Conditions would be displayed here')">Terms and Conditions</a>
+    </div>
+
+    <script>
+        // Data storage object
+        let userData = {
+            priorities: [],
+            habits: [],
+            tasks: {
+                monday: [],
+                tuesday: [],
+                wednesday: [],
+                thursday: [],
+                friday: [],
+                saturday: [],
+                sunday: []
+            },
+            habitProgress: {}
+        };
+
+        // Check if user is logged in on page load
+        window.onload = function() {
+            updateCurrentDate();
+            const isLoggedIn = localStorage.getItem('plannerLoggedIn');
+            if (isLoggedIn === 'true') {
+                loadUserData();
+                showDashboard();
+            }
+        };
+
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple validation (you can make this more secure)
+            if (username && password) {
+                localStorage.setItem('plannerLoggedIn', 'true');
+                localStorage.setItem('plannerUsername', username);
+                loadUserData();
+                showDashboard();
+            } else {
+                alert('Please enter both username and password');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('plannerLoggedIn');
+            localStorage.removeItem('plannerUsername');
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('dashboard').style.display = 'none';
+        }
+
+        function showDashboard() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            renderAllData();
+        }
+
+        function saveUserData() {
+            const username = localStorage.getItem('plannerUsername');
+            localStorage.setItem(`plannerData_${username}`, JSON.stringify(userData));
+        }
+
+        function loadUserData() {
+            const username = localStorage.getItem('plannerUsername');
+            const savedData = localStorage.getItem(`plannerData_${username}`);
+            if (savedData) {
+                userData = JSON.parse(savedData);
+            }
+        }
+
+        function addPriority() {
+            const input = document.getElementById('newPriority');
+            const priority = input.value.trim();
+            if (priority) {
+                userData.priorities.push({
+                    id: Date.now(),
+                    text: priority,
+                    completed: false
+                });
+                input.value = '';
+                saveUserData();
+                renderPriorities();
+            }
+        }
+
+        function removePriority(id) {
+            userData.priorities = userData.priorities.filter(p => p.id !== id);
+            saveUserData();
+            renderPriorities();
+        }
+
+        function togglePriority(id) {
+            const priority = userData.priorities.find(p => p.id === id);
+            if (priority) {
+                priority.completed = !priority.completed;
+                saveUserData();
+                renderPriorities();
+            }
+        }
+
+        function addHabit() {
+            const input = document.getElementById('newHabit');
+            const habit = input.value.trim();
+            if (habit) {
+                const habitId = Date.now();
+                userData.habits.push({
+                    id: habitId,
+                    text: habit
+                });
+                userData.habitProgress[habitId] = {
+                    monday: false,
+                    tuesday: false,
+                    wednesday: false,
+                    thursday: false,
+                    friday: false,
+                    saturday: false,
+                    sunday: false
+                };
+                input.value = '';
+                saveUserData();
+                renderHabits();
+            }
+        }
+
+        function removeHabit(id) {
+            userData.habits = userData.habits.filter(h => h.id !== id);
+            delete userData.habitProgress[id];
+            saveUserData();
+            renderHabits();
+        }
+
+        function toggleHabit(habitId, day) {
+            if (userData.habitProgress[habitId]) {
+                userData.habitProgress[habitId][day] = !userData.habitProgress[habitId][day];
+                saveUserData();
+                renderHabits();
+            }
+        }
+
+        function addTask(day) {
+            const input = document.getElementById(`new${day.charAt(0).toUpperCase() + day.slice(1)}Task`);
+            const task = input.value.trim();
+            if (task) {
+                userData.tasks[day].push({
+                    id: Date.now(),
+                    text: task,
+                    completed: false
+                });
+                input.value = '';
+                saveUserData();
+                renderTasks(day);
+            }
+        }
+
+        function removeTask(day, id) {
+            userData.tasks[day] = userData.tasks[day].filter(t => t.id !== id);
+            saveUserData();
+            renderTasks(day);
+        }
+
+        function toggleTask(day, id) {
+            const task = userData.tasks[day].find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveUserData();
+                renderTasks(day);
+            }
+        }
+
+        function renderPriorities() {
+            const container = document.getElementById('prioritiesList');
+            container.innerHTML = '';
+            
+            userData.priorities.forEach(priority => {
+                const div = document.createElement('div');
+                div.className = 'priority-item';
+                div.innerHTML = `
+                    <div>
+                        <input type="checkbox" class="checkbox" ${priority.completed ? 'checked' : ''} 
+                               onchange="togglePriority(${priority.id})">
+                        <span style="${priority.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${priority.text}</span>
+                    </div>
+                    <button class="delete-btn" onclick="removePriority(${priority.id})">×</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderHabits() {
+            const container = document.getElementById('habitsGrid');
+            container.innerHTML = '';
+            
+            userData.habits.forEach(habit => {
+                // Habit name
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'habit-name';
+                nameDiv.innerHTML = `
+                    ${habit.text}
+                    <button class="delete-btn" onclick="removeHabit(${habit.id})" style="margin-left: 10px; font-size: 10px;">×</button>
+                `;
+                container.appendChild(nameDiv);
+                
+                // Checkboxes for each day
+                const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                days.forEach(day => {
+                    const checkboxDiv = document.createElement('div');
+                    checkboxDiv.style.textAlign = 'center';
+                    const checked = userData.habitProgress[habit.id] && userData.habitProgress[habit.id][day];
+                    checkboxDiv.innerHTML = `
+                        <input type="checkbox" class="habit-checkbox" ${checked ? 'checked' : ''} 
+                               onchange="toggleHabit(${habit.id}, '${day}')">
+                    `;
+                    container.appendChild(checkboxDiv);
+                });
+            });
+        }
+
+        function renderTasks(day) {
+            const container = document.getElementById(`${day}Tasks`);
+            container.innerHTML = '';
+            
+            userData.tasks[day].forEach(task => {
+                const div = document.createElement('div');
+                div.className = 'task-item';
+                div.innerHTML = `
+                    <div>
+                        <input type="checkbox" class="checkbox" ${task.completed ? 'checked' : ''} 
+                               onchange="toggleTask('${day}', ${task.id})">
+                        <span style="${task.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${task.text}</span>
+                    </div>
+                    <button class="delete-btn" onclick="removeTask('${day}', ${task.id})">×</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderAllData() {
+            renderPriorities();
+            renderHabits();
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            days.forEach(day => renderTasks(day));
+        }
+
+        // Allow Enter key to add items
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const target = e.target;
+                if (target.id === 'newPriority') addPriority();
+                else if (target.id === 'newHabit') addHabit();
+                else if (target.id.startsWith('new') && target.id.endsWith('Task')) {
+                    const day = target.id.replace('new', '').replace('Task', '').toLowerCase();
+                    addTask(day);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
